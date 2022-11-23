@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GoGame", "GoGame.vcxproj", "{383F9DCC-8BD1-4120-96A3-EA0B6B9ABDC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{383F9DCC-8BD1-4120-96A3-EA0B6B9ABDC4}.Debug|x64.ActiveCfg = Debug|x64
+		{383F9DCC-8BD1-4120-96A3-EA0B6B9ABDC4}.Debug|x64.Build.0 = Debug|x64
+		{383F9DCC-8BD1-4120-96A3-EA0B6B9ABDC4}.Release|x64.ActiveCfg = Release|x64
+		{383F9DCC-8BD1-4120-96A3-EA0B6B9ABDC4}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6F9E6A7-FAD5-4FF1-A6DC-EF1BF2CE03F1}
+	EndGlobalSection
+EndGlobal
