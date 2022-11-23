@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	checkArgs(argc, argv);
 	GRID = createVectorGrid();
 	initializeGrid(GRID);
-	GRID[1][1].player = 'X'; //test
+	//GRID[1][1].player = 'X'; //test
 	std::string s;
 	std::getline(std::cin >> std::ws, s);
 
