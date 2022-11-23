@@ -21,6 +21,7 @@ void checkArgs(int argc, char* argv[]);
 void initializeGrid(vector<vector<Brick>> & vG);
 vector<string> loadInput(string s);
 void makeMove();
+void printGrid();
 vector<vector<Brick>> createVectorGrid();
 
 int GRID_SIZE;
@@ -35,15 +36,18 @@ int main(int argc, char* argv[])
 	checkArgs(argc, argv);
 	GRID = createVectorGrid();
 	initializeGrid(GRID);
+	GRID[1][1].player = 'X'; //test
 	std::string s;
 	std::getline(std::cin >> std::ws, s);
 
 	INPUT = loadInput(s);
 
-	for (size_t i = 0; i < INPUT.size(); i += 2)  
-	{
-		cout << INPUT.size() << ":  " << i << ": row: " << INPUT[i] << ": col: " << INPUT[i + 1] << endl;
-	}
+	//for (size_t i = 0; i < INPUT.size(); i += 2)  
+	//{
+	//	cout << INPUT.size() << ":  " << i << ": row: " << INPUT[i] << ": col: " << INPUT[i + 1] << endl;
+	//}
+	
+	printGrid();
 	return 0;
 }
 
@@ -133,5 +137,18 @@ vector<string> loadInput(string s)
 
 void makeMove() 
 {
+
+}
+
+void printGrid()
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			cout << GRID[i][j].player;
+		}
+		cout << endl;
+	}
 
 }
