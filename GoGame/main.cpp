@@ -7,15 +7,44 @@
 
 using namespace std;
 
+
+struct Neighbour
+{
+	bool up = 0;
+	bool down = 0;
+	bool left = 0;
+	bool right = 0;
+};
+
+struct Enemy
+{
+	bool up = 0;
+	bool down = 0;
+	bool left = 0;
+	bool right = 0;
+};
+
+struct Freedom 
+{
+	bool up = 1;
+	bool down = 1;
+	bool left = 1;
+	bool right = 1;
+};
+
+
 struct Brick
 {
 	size_t row = 0;
 	size_t col = 0;
-	vector<vector<char>> neighbours; //up, down, left, right neighbour
+	Neighbour neighbours; //up, down, left, right neighbours
+	Enemy enemies; //up, down, left, right enemies
+	Freedom freedom; //up, down, left, right freedom
 	char player = '.';
 	int isEmpty = 0;
 
 };
+
 
 void init(int argc, char* argv[]);
 void start();
@@ -187,7 +216,7 @@ void makeMove(char player, int row, int col)
 	}
 	catch (const std::exception&)
 	{
-		
+		cout << "grid out of bounds" << endl;
 	}
 }
 
