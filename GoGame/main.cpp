@@ -45,7 +45,7 @@ struct Brick
 
 };
 
-
+bool isReserved(size_t row, size_t col);
 void init(int argc, char* argv[]);
 void start();
 char pickPlayer(bool & playerO);
@@ -96,8 +96,15 @@ void start()
 	char currentPlayer;
 	for (size_t i = 0; i < INPUT.size(); i+=2) 
 	{
-		currentPlayer = pickPlayer(playerO);
-		cout << "current player: " << currentPlayer << endl;
+		if (!(isReserved(stoi(INPUT[i]), stoi(INPUT[i+1]))))
+		{
+			currentPlayer = pickPlayer(playerO);
+		}
+		else 
+		{
+			continue;
+		}
+		
 		if (INPUT[i] != "pass") 
 		{
 			makeMove(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
@@ -231,4 +238,19 @@ void printGrid()
 		cout << endl;
 	}
 
+}
+
+//=======================================
+//
+//=======================================
+bool isReserved(size_t row, size_t col)
+{
+	if (GRID[row][col].player != '.')
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
 }
