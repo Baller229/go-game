@@ -7,6 +7,7 @@
 
 using namespace std;
 
+//===================================
 
 struct Neighbour
 {
@@ -16,6 +17,8 @@ struct Neighbour
 	bool right = 0;
 };
 
+//===================================
+
 struct Enemy
 {
 	bool up = 0;
@@ -23,6 +26,8 @@ struct Enemy
 	bool left = 0;
 	bool right = 0;
 };
+
+//===================================
 
 struct Freedom 
 {
@@ -32,6 +37,7 @@ struct Freedom
 	bool right = 1;
 };
 
+//===================================
 
 struct Brick
 {
@@ -45,6 +51,19 @@ struct Brick
 
 };
 
+//===================================
+
+//====================================================
+//
+//====================================================
+void updateBrick(char p, int row, int col);
+void UP(char p, int row, int col);
+void DOWN(char p, int row, int col);
+void LEFT(char p, int row, int col);
+void RIGHT(char p, int row, int col);
+
+bool rowOutOfField(int row);
+bool colOutOfField(int col);
 bool isOutOfField(int row, int col);
 bool isReserved(size_t row, size_t col);
 void init(int argc, char* argv[]);
@@ -56,6 +75,10 @@ vector<string> loadInput(string s);
 void makeMove(char player, int row, int col);
 void printGrid();
 vector<vector<Brick>> createVectorGrid();
+
+//====================================================
+//
+//====================================================
 
 int GRID_SIZE;
 vector<vector<Brick>> GRID;
@@ -170,7 +193,9 @@ vector<vector<Brick>> createVectorGrid()
 	return v;
 }
 
-
+//====================================================
+//
+//====================================================
 
 void initializeGrid(vector<vector<Brick>> &  vG)
 { 
@@ -225,12 +250,199 @@ void makeMove(char player, int row, int col)
 	try
 	{
 		GRID[row][col].player = player;
+		updateBrick(player, row, col);
 	}
 	catch (const std::exception&)
 	{
 		cout << "grid out of bounds" << endl;
 	}
 }
+
+//=================================================
+//
+//=================================================
+void updateBrick(char p, int row, int col) 
+{
+	UP(p, row , col);
+	//DOWN(p, row, col);
+	//LEFT(p, row, col);
+	//RIGHT(p, row, col);
+}
+
+//=================================================
+
+void UP(char p, int row, int col) 
+{
+	Neighbour n;
+	Enemy e;
+	Freedom f;
+
+	if (rowOutOfField(row - 1))
+	{
+		f.up = 0;
+		GRID[row][col].freedom = f;
+	}
+	else
+	{
+		if (GRID[row - 1][col].player == p)
+		{
+			f.up = 0;
+			e.up = 0;
+			n.up = 1;
+			GRID[row][col].freedom = f;
+			GRID[row][col].enemies = e;
+			GRID[row][col].neighbours = n;
+		}
+		else if (GRID[row - 1][col].player != '.')
+		{
+			f.up = 0;
+			e.up = 1;
+			n.up = 0;
+			GRID[row][col].freedom = f;
+			GRID[row][col].enemies = e;
+			GRID[row][col].neighbours = n;
+		}
+		else 
+		{
+			f.up = 1;
+			e.up = 0;
+			n.up = 0;
+			GRID[row + 1][col].freedom = f;
+			GRID[row + 1][col].enemies = e;
+			GRID[row + 1][col].neighbours = n;
+		}
+	}
+}
+//void DOWN(char p, int row, int col) 
+//{
+//	Neighbour n;
+//	Enemy e;
+//	Freedom f;
+//
+//	if (rowOutOfField(row + 1))
+//	{
+//		f.down = 0;
+//		GRID[row][col].freedom = f;
+//	}
+//	else
+//	{
+//		if (GRID[row][col].player == p)
+//		{
+//			f.down = 0;
+//			e.down = 0;
+//			n.down = 1;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else if (GRID[row][col].player != '.')
+//		{
+//			f.down = 0;
+//			e.down = 1;
+//			n.down = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else
+//		{
+//			f.down = 1;
+//			e.down = 0;
+//			n.down = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//	}
+//}
+//void LEFT(char p, int row, int col) 
+//{
+//	Neighbour n;
+//	Enemy e;
+//	Freedom f;
+//
+//	if (colOutOfField(col - 1))
+//	{
+//		f.left = 0;
+//		GRID[row][col].freedom = f;
+//	}
+//	else
+//	{
+//		if (GRID[row][col - 1].player == p)
+//		{
+//			f.left = 0;
+//			e.left = 0;
+//			n.left = 1;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else if (GRID[row][col - 1].player != '.')
+//		{
+//			f.left = 0;
+//			e.left = 1;
+//			n.left = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else
+//		{
+//			f.left = 1;
+//			e.left = 0;
+//			n.left = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//	}
+//}
+//void RIGHT(char p, int row, int col) 
+//{
+//	Neighbour n;
+//	Enemy e;
+//	Freedom f;
+//
+//	if (colOutOfField(col + 1))
+//	{
+//		f.right = 0;
+//		GRID[row][col].freedom = f;
+//	}
+//	else
+//	{
+//		if (GRID[row][col + 1].player == p)
+//		{
+//			f.right = 0;
+//			e.right = 0;
+//			n.right = 1;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else if (GRID[row][col + 1].player != '.')
+//		{
+//			f.right = 0;
+//			e.right = 1;
+//			n.right = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//		else
+//		{
+//			f.right = 1;
+//			e.right = 0;
+//			n.right = 0;
+//			GRID[row][col].freedom = f;
+//			GRID[row][col].enemies = e;
+//			GRID[row][col].neighbours = n;
+//		}
+//	}
+//}
+
+//====================================================
+//
+//====================================================
 
 void printGrid()
 {
@@ -280,3 +492,37 @@ bool isOutOfField(int row, int col)
 //=================================================
 //
 //=================================================
+
+bool rowOutOfField(int row)
+{
+	if (row > 0 && row < GRID_SIZE)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+//=================================================
+//
+//=================================================
+
+bool colOutOfField(int col)
+{
+	if (col > 0 && col < GRID_SIZE)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+//=================================================
+//
+//=================================================
+
+
