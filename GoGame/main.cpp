@@ -45,6 +45,7 @@ struct Brick
 
 };
 
+bool isOutOfField(int row, int col);
 bool isReserved(size_t row, size_t col);
 void init(int argc, char* argv[]);
 void start();
@@ -96,6 +97,10 @@ void start()
 	char currentPlayer;
 	for (size_t i = 0; i < INPUT.size(); i+=2) 
 	{
+		if (isOutOfField(stoi(INPUT[i]), stoi(INPUT[i + 1])))
+		{
+			continue;
+		}
 		if (!(isReserved(stoi(INPUT[i]), stoi(INPUT[i+1]))))
 		{
 			currentPlayer = pickPlayer(playerO);
@@ -240,9 +245,10 @@ void printGrid()
 
 }
 
-//=======================================
+//=================================================
 //
-//=======================================
+//=================================================
+
 bool isReserved(size_t row, size_t col)
 {
 	if (GRID[row][col].player != '.')
@@ -254,3 +260,23 @@ bool isReserved(size_t row, size_t col)
 		return false;
 	}
 }
+
+//=================================================
+//
+//=================================================
+
+bool isOutOfField(int row, int col)
+{
+	if (row > 0 && row < GRID_SIZE || col > 0 && col < GRID_SIZE)
+	{
+		return false;
+	}
+	else 
+	{
+		return true;
+	}
+}
+
+//=================================================
+//
+//=================================================
