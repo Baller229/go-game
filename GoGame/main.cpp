@@ -14,13 +14,16 @@ struct Brick
 	vector<vector<char>> neighbours; //up, down, left, right neighbour
 	char player = '.';
 	int isEmpty = 0;
+
 };
 
-
+void init(int argc, char* argv[]);
+void start();
+char pickPlayer(bool & playerO);
 void checkArgs(int argc, char* argv[]);
 void initializeGrid(vector<vector<Brick>> & vG);
 vector<string> loadInput(string s);
-void makeMove();
+void makeMove(char player, int row, int col);
 void printGrid();
 vector<vector<Brick>> createVectorGrid();
 
@@ -28,27 +31,68 @@ int GRID_SIZE;
 vector<vector<Brick>> GRID;
 vector<string> INPUT;
 
-
-
+//====================================================
+//
+//====================================================
 
 int main(int argc, char* argv[])
 {
+	init(argc, argv);
+	start();
+	printGrid();
+	return 0;
+}
+
+//====================================================
+//
+//====================================================
+
+void init(int argc, char* argv[])
+{
+	string s;
 	checkArgs(argc, argv);
 	GRID = createVectorGrid();
 	initializeGrid(GRID);
-	//GRID[1][1].player = 'X'; //test
-	std::string s;
-	std::getline(std::cin >> std::ws, s);
-
+	getline(std::cin >> std::ws, s);
 	INPUT = loadInput(s);
+}
 
-	//for (size_t i = 0; i < INPUT.size(); i += 2)  
-	//{
-	//	cout << INPUT.size() << ":  " << i << ": row: " << INPUT[i] << ": col: " << INPUT[i + 1] << endl;
-	//}
+//====================================================
+//
+//====================================================
+
+void start() 
+{
+	bool playerO = 0;
+	char currentPlayer;
+	for (size_t i = 0; i < INPUT.size(); i+=2) 
+	{
+		currentPlayer = pickPlayer(playerO);
+		cout << "current player: " << currentPlayer << endl;
+		if (INPUT[i] != "pass") 
+		{
+			makeMove(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
+		}
+	}
 	
-	printGrid();
-	return 0;
+}
+
+//====================================================
+//
+//====================================================
+
+char pickPlayer(bool & playerO)
+{
+	if (playerO == 0)
+	{
+		playerO = 1;
+		return 'X';
+	}
+	else 
+	{
+		playerO = 0;
+		return 'O';
+	}
 }
 
 //====================================================
@@ -135,9 +179,16 @@ vector<string> loadInput(string s)
 //
 //====================================================
 
-void makeMove() 
+void makeMove(char player, int row, int col) 
 {
-
+	try
+	{
+		GRID[row][col].player = player;
+	}
+	catch (const std::exception&)
+	{
+		
+	}
 }
 
 void printGrid()
