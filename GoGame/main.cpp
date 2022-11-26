@@ -4,8 +4,15 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <map>
 
 using namespace std;
+
+struct GroupMember {
+	int row;
+	int col;
+};
+//map<int, int> GroupMember;
 
 //===================================
 
@@ -58,7 +65,7 @@ struct Brick
 	Freedom freedom; //up, down, left, right freedom
 	Wall wall;
 	char player = '.';
-	int isEmpty = 0;
+	int groupFreedom = 0;
 
 };
 
@@ -67,6 +74,12 @@ struct Brick
 //====================================================
 //
 //====================================================
+void setFreedomsForCurrentGroup(vector<GroupMember>& groupMembers, int& count);
+bool findMember(vector<GroupMember>& vect, GroupMember& member);
+int checkGroupNeighbours(vector<GroupMember> & member, int row, int col);
+bool hasFriends(int row, int col);
+int countFreedom(vector<GroupMember> & member, size_t r, size_t col);
+void checkGroupFreedom();
 void updateBrick(char p, int row, int col);
 void CurrUP(Neighbour &n, Enemy &e, Freedom &f, Wall& w, char p, int row, int col);
 void CurrDOWN(Neighbour& n, Enemy& e, Freedom& f, Wall& w, char p, int row, int col);
@@ -103,6 +116,12 @@ int main(int argc, char* argv[])
 {
 	init(argc, argv);
 	start();
+	cout << "************************" << endl;
+	cout << "Final Result"<< endl;
+	
+	cout << "************************" << endl;
+
+
 	printGrid();
 	return 0;
 }
@@ -262,12 +281,314 @@ void makeMove(char player, int row, int col)
 	{
 		GRID[row][col].player = player;
 		update(player, row, col);
+		checkGroupFreedom();
+		cout << "========================" << endl;
+		cout << "Player: " << player << " row: " << row << " col: " << col << endl;
+		cout << "========================" << endl;
+		printGrid();
+		cout << "========================" << endl;
+
 		
 	}
 	catch (const std::exception&)
 	{
 		cout << "grid out of bounds" << endl;
 	}
+}
+
+//=================================================
+//
+//=================================================
+void checkGroupFreedom()
+{
+	int countX = 0;
+	int firstX = 0;
+	int firstO = 0;
+	//int countXTemp = 0;
+	
+	vector<GroupMember> groupMembersX;
+	map<int, int> tempMap;
+	
+	int countO = 0;
+	vector<GroupMember> groupMembersO;
+
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			
+			if (GRID[i][j].player == 'X' || (i + 1 == GRID.size() && j + 1 == GRID[i].size()))
+			{
+
+				if (firstX != 0)
+				{
+					GroupMember g;
+					g.row = (int)i;
+					g.col = (int)j;
+					if (findMember(groupMembersX, g))
+					{
+						//cout << "Same group [ " << i << "," << j << " ]" << endl;
+					}
+					else 
+					{
+						setFreedomsForCurrentGroup(groupMembersX, countX);
+					}
+				}
+				countX += countFreedom(groupMembersX, i, j);
+				if (hasFriends((int)i, (int)j))
+				{
+					countX += checkGroupNeighbours(groupMembersX, (int)i, (int)j);
+					
+				}
+				
+				else 
+				{
+					//does not have friends so find another group
+					//store count in groupFreedom
+					/*GRID[i][j].groupFreedom = countX;*/
+					setFreedomsForCurrentGroup(groupMembersX, countX);
+					//cout << "AAAAA [ " << i << "," << j << " ]" << endl;
+				}
+			firstX++;
+			}
+			if (GRID[i][j].player == 'O' || (i + 1 == GRID.size() && j + 1 == GRID[i].size()))
+			{
+				//cout << "O " << i << " " << j << endl;
+				if (firstO != 0)
+				{
+					GroupMember g;
+					g.row = (int)i;
+					g.col = (int)j;
+					if (findMember(groupMembersO, g))
+					{
+						if ((i + 1 == GRID.size() && j + 1 == GRID[i].size()))
+						{
+							setFreedomsForCurrentGroup(groupMembersO, countO);
+						}
+						//cout << "Same group [ " << i << "," << j << " ]" << endl;
+					}
+					else
+					{
+						setFreedomsForCurrentGroup(groupMembersO, countO);
+					}
+				}
+				countO += countFreedom(groupMembersO, i, j);
+				if (hasFriends((int)i, (int)j))
+				{
+					countO += checkGroupNeighbours(groupMembersO, (int)i, (int)j);
+
+				}
+
+				else
+				{
+					//does not have friends so find another group
+					//store count in groupFreedom
+					/*GRID[i][j].groupFreedom = countX;*/
+					setFreedomsForCurrentGroup(groupMembersO, countO);
+					//cout << "AAAAA [ " << i << "," << j << " ]" << endl;
+				}
+			 firstO++;
+			}
+		}
+		
+	}
+}
+
+//=================================================
+//
+//=================================================
+
+void setFreedomsForCurrentGroup(vector<GroupMember>& groupMembers, int& count)
+{
+	if (!(groupMembers.empty()))
+	{
+		for (size_t k = 0; k < groupMembers.size(); k++)
+		{
+			GRID[groupMembers[k].row][groupMembers[k].col].groupFreedom = count;
+		}
+		groupMembers.clear();
+
+	}
+	count = 0;
+}
+
+//=================================================
+//
+//=================================================
+
+bool findMember(vector<GroupMember>& vect, GroupMember& member)
+{
+	for (size_t i = 0; i < vect.size(); i++)
+	{
+		if (vect[i].row == member.row && vect[i].col == member.col)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+//=================================================
+//
+//=================================================
+
+int countFreedom(vector<GroupMember> & member, size_t r, size_t c)
+{
+	int row = (int)r;
+	int col = (int)c;
+	GroupMember temp;
+	temp.row = row;
+	temp.col = col;
+	int count = 0;
+	if (findMember(member, temp))
+	{
+		return 0;
+	}
+	
+	if (GRID[row][col].freedom.up == 1)
+	{
+		count++;
+	}
+	if (GRID[row][col].freedom.down == 1)
+	{
+		count++;
+	}
+	if (GRID[row][col].freedom.left == 1)
+	{
+		count++;
+	}
+
+	if (GRID[row][col].freedom.right == 1)
+	{
+		count++;
+	}
+	GroupMember gm;
+	gm.row = row;
+	gm.col = col;
+	member.push_back(gm);
+
+	return count;
+}
+
+//=================================================
+//
+//=================================================
+bool hasFriends(int row, int col)
+{
+	if (GRID[row][col].neighbours.up == 1)
+	{
+		return true;
+	}
+	if (GRID[row][col].neighbours.down == 1)
+	{
+		return true;
+	}
+
+	if (GRID[row][col].neighbours.left == 1)
+	{
+		return true;
+	}
+
+	if (GRID[row][col].neighbours.right == 1)
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
+
+}
+
+//=================================================
+//
+//=================================================
+
+int checkGroupNeighbours(vector<GroupMember> & member, int row, int col)
+{
+	
+	int count = 0;
+	//UP
+	if(GRID[row][col].neighbours.up == 1)
+	{
+		GroupMember gm;
+		gm.row = row - 1;
+		gm.col = col;
+		if (!(member.empty()))
+		{
+			if (!(findMember(member, gm)))
+			{
+				count += countFreedom(member, row - 1, col);
+				member.push_back(gm);
+			}
+		}
+		else
+		{
+			count += countFreedom(member, row - 1, col);
+			member.push_back(gm);
+		}
+	}
+	//DOWN
+	if (GRID[row][col].neighbours.down == 1)
+	{
+		GroupMember gm;
+		gm.row = row + 1;
+		gm.col = col;
+		if (!(member.empty()))
+		{
+			if (!(findMember(member, gm)))
+			{
+				count += countFreedom(member, row + 1, col);
+				member.push_back(gm);
+			}
+		}
+		else
+		{
+			count += countFreedom(member, row + 1, col);
+			member.push_back(gm);
+		}
+	}
+	//LEFT
+	if (GRID[row][col].neighbours.left == 1)
+	{
+		GroupMember gm;
+		gm.row = row;
+		gm.col = col - 1;
+		if (!(member.empty()))
+		{
+			if (!(findMember(member, gm)))
+			{
+				count += countFreedom(member, row, col - 1);
+				member.push_back(gm);
+			}
+		}
+		else
+		{
+			count += countFreedom(member, row, col - 1);
+			member.push_back(gm);
+		}
+	}
+	//RIGHT
+	if (GRID[row][col].neighbours.right == 1)
+	{
+		GroupMember gm;
+		gm.row = row;
+		gm.col = col + 1;
+		if (!(member.empty()))
+		{
+			if (!(findMember(member, gm)))
+			{
+				count += countFreedom(member, row, col + 1);
+				member.push_back(gm);
+			}
+		}
+		else
+		{
+			count += countFreedom(member, row, col + 1);
+			member.push_back(gm);
+		}
+	}
+	
+	return count;
 }
 
 //=================================================
@@ -352,9 +673,9 @@ void CurrUP(Neighbour &n, Enemy &e, Freedom &f, Wall & w, char p, int row, int c
 			f.up = 1;
 			e.up = 0;
 			n.up = 0;
-			GRID[row + 1][col].freedom = f;
-			GRID[row + 1][col].enemies = e;
-			GRID[row + 1][col].neighbours = n;
+			GRID[row][col].freedom = f;
+			GRID[row][col].enemies = e;
+			GRID[row][col].neighbours = n;
 		}
 	}
 }
@@ -521,7 +842,7 @@ bool isReserved(size_t row, size_t col)
 
 bool isOutOfField(int row, int col)
 {
-	if (row > 0 && row < GRID_SIZE || col > 0 && col < GRID_SIZE)
+	if (row >= 0 && row < GRID_SIZE || col >= 0 && col < GRID_SIZE)
 	{
 		return false;
 	}
@@ -537,7 +858,7 @@ bool isOutOfField(int row, int col)
 
 bool rowOutOfField(int row)
 {
-	if (row > 0 && row < GRID_SIZE)
+	if (row >= 0 && row < GRID_SIZE)
 	{
 		return false;
 	}
@@ -553,7 +874,7 @@ bool rowOutOfField(int row)
 
 bool colOutOfField(int col)
 {
-	if (col > 0 && col < GRID_SIZE)
+	if (col >= 0 && col < GRID_SIZE)
 	{
 		return false;
 	}
