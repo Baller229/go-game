@@ -74,6 +74,12 @@ struct Brick
 //====================================================
 //
 //====================================================
+
+bool checkDeletionX();
+bool checkDeletionO();
+void deleteX();
+void deleteO();
+bool checkSuicide(char currentPlayer, int row, int col);
 void printFreedoms();
 void setFreedomsForCurrentGroup(vector<GroupMember>& groupMembers, int& count);
 bool findMember(vector<GroupMember>& vect, GroupMember& member);
@@ -93,7 +99,7 @@ bool isOutOfField(int row, int col);
 bool isReserved(size_t row, size_t col);
 void init(int argc, char* argv[]);
 void start();
-char pickPlayer(bool & playerO);
+char pickPlayer(bool& suicide, bool& playerO, char againPlayer);
 void checkArgs(int argc, char* argv[]);
 void initializeGrid(vector<vector<Brick>> & vG);
 vector<string> loadInput(string s);
@@ -108,7 +114,7 @@ vector<vector<Brick>> createVectorGrid();
 int GRID_SIZE;
 vector<vector<Brick>> GRID;
 vector<string> INPUT;
-
+vector<string> CONFIGURATION;
 //====================================================
 //
 //====================================================
@@ -148,12 +154,14 @@ void init(int argc, char* argv[])
 void start() 
 {
 	bool playerO = 0;
+	bool isSuicide = 0;
 	char currentPlayer;
+	char againPlayer = '.';
 	for (size_t i = 0; i < INPUT.size(); i+=2) 
 	{
 		if (INPUT[i] == "pass" && INPUT[i + 1] == "pass")
 		{
-			currentPlayer = pickPlayer(playerO);
+			currentPlayer = pickPlayer(isSuicide, playerO, againPlayer);
 			continue;
 		}
 		if (isOutOfField(stoi(INPUT[i]), stoi(INPUT[i + 1])))
@@ -162,7 +170,7 @@ void start()
 		}
 		if (!(isReserved(stoi(INPUT[i]), stoi(INPUT[i+1]))))
 		{
-			currentPlayer = pickPlayer(playerO);
+			currentPlayer = pickPlayer(isSuicide, playerO, againPlayer);
 		}
 		else 
 		{
@@ -172,6 +180,8 @@ void start()
 		if (INPUT[i] != "pass") 
 		{
 			makeMove(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
+			isSuicide = checkSuicide(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
+			againPlayer = currentPlayer;
 		}
 	}
 	
@@ -181,8 +191,21 @@ void start()
 //
 //====================================================
 
-char pickPlayer(bool & playerO)
+char pickPlayer(bool & suicide, bool & playerO, char againPlayer)
 {
+	if (suicide == 1)
+	{
+		if (againPlayer == 'X')
+		{
+			playerO = 1;
+			return 'X';
+		}
+		else if (againPlayer == 'O')
+		{
+			playerO = 0;
+			return 'O';
+		}
+	}
 	if (playerO == 0)
 	{
 		playerO = 1;
@@ -288,11 +311,17 @@ void makeMove(char player, int row, int col)
 		GRID[row][col].player = player;
 		update(player, row, col);
 		checkGroupFreedom();
+		//storeConfiguration();
+
+		
+		
+		//checkKO();
 		
 		//HRA DO SAMOVRAZDY -> check if player O or player X is trying to delete himself, replace with '.' update, checkfreedom and continue with same player
 		//HRA DO SAMOVRAZDY -> Ale ak by znamenalo odobratie vlastnych a zaroven superovych kamenov, tah je validny a odoberiu sa superove kamene
 		//KO -> budem odkladat vsetky predosle konfiguracie a porovnavat s aktualnou konfiguraciou
 		//KO -> ak je konfiguracia vypytam tah este raz
+		
 		cout << "========================" << endl;
 		cout << "Player: " << player << " row: " << row << " col: " << col << endl;
 		cout << "========================" << endl;
@@ -313,6 +342,159 @@ void makeMove(char player, int row, int col)
 //=================================================
 //
 //=================================================
+
+bool checkSuicide(char currentPlayer, int row, int col)
+{
+	
+		if (currentPlayer == 'X')
+		{
+			if (GRID[row][col].groupFreedom == 0)
+			{
+				if (checkDeletionO())
+				{
+					//delete enemies if possible
+					deleteO();
+					return false;
+				}
+				else 
+				{
+					GRID[row][col].player = '.';
+					update('.', row, col);
+					checkGroupFreedom();
+					return true;
+				}
+				
+			}
+			else 
+			{
+				//delete enemies if possible
+				deleteO();
+				return false;
+			}
+			
+		}
+		else if (currentPlayer == 'O')
+		{
+			if (GRID[row][col].groupFreedom == 0)
+			{
+				if (checkDeletionX())
+				{
+					//delete enemies if possible
+					deleteX();
+					return false;
+				}
+				else 
+				{
+					GRID[row][col].player = '.';
+					update('.', row, col);
+					checkGroupFreedom();
+					return true;
+				}
+			}
+			else 
+			{
+				deleteX();
+				return false;
+			}
+		}
+		return false;
+}
+
+//=================================================
+//
+//=================================================
+
+bool checkDeletionX() 
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (GRID[i][j].player == 'X')
+			{
+				if (GRID[i][j].groupFreedom == 0)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+//=================================================
+//
+//=================================================
+
+bool checkDeletionO()
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (GRID[i][j].player == 'O')
+			{
+				if (GRID[i][j].groupFreedom == 0)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+//=================================================
+//
+//=================================================
+
+void deleteX()
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (GRID[i][j].player == 'X')
+			{
+				if (GRID[i][j].groupFreedom == 0)
+				{
+					GRID[i][j].player = '.';
+					update('.', (int)i, (int)j);
+				}
+			}
+		}
+	}
+	checkGroupFreedom();
+}
+
+//=================================================
+//
+//=================================================
+
+
+void deleteO()
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (GRID[i][j].player == 'O')
+			{
+				if (GRID[i][j].groupFreedom == 0)
+				{
+					GRID[i][j].player = '.';
+					update('.', (int) i, (int) j);
+				}
+			}
+		}
+	}
+	checkGroupFreedom();
+}
+
+//=================================================
+//
+//=================================================
+
 void checkGroupFreedom()
 {
 	int countX = 0;
