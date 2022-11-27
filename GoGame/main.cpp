@@ -75,6 +75,7 @@ struct Brick
 //
 //====================================================
 
+void printGridWithCurrent(int row, int col);
 bool checkDeletionX();
 bool checkDeletionO();
 void deleteX();
@@ -103,7 +104,7 @@ char pickPlayer(bool& suicide, bool& playerO, char againPlayer);
 void checkArgs(int argc, char* argv[]);
 void initializeGrid(vector<vector<Brick>> & vG);
 vector<string> loadInput(string s);
-void makeMove(char player, int row, int col);
+void makeMove(char player, int row, int col, int & countMoves);
 void printGrid();
 vector<vector<Brick>> createVectorGrid();
 
@@ -153,6 +154,7 @@ void init(int argc, char* argv[])
 
 void start() 
 {
+	int moves = 1;
 	bool playerO = 0;
 	bool isSuicide = 0;
 	char currentPlayer;
@@ -179,7 +181,7 @@ void start()
 		
 		if (INPUT[i] != "pass") 
 		{
-			makeMove(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
+			makeMove(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]), moves);
 			isSuicide = checkSuicide(currentPlayer, stoi(INPUT[i]), stoi(INPUT[i + 1]));
 			againPlayer = currentPlayer;
 		}
@@ -304,7 +306,7 @@ vector<string> loadInput(string s)
 //
 //====================================================
 
-void makeMove(char player, int row, int col) 
+void makeMove(char player, int row, int col, int & countMoves) 
 {
 	try
 	{
@@ -323,12 +325,14 @@ void makeMove(char player, int row, int col)
 		//KO -> ak je konfiguracia vypytam tah este raz
 		
 		cout << "========================" << endl;
-		cout << "Player: " << player << " row: " << row << " col: " << col << endl;
+		cout << countMoves << ": Player: " << player << " row: " << row << " col: " << col << endl;
 		cout << "========================" << endl;
-		printGrid();
+		countMoves++;
+		//printGrid();
+		printGridWithCurrent(row, col);
 		cout << endl;
-		printFreedoms();
-		cout << "========================" << endl;
+		//printFreedoms();
+		//cout << "========================" << endl;
 
 
 		
@@ -1015,6 +1019,36 @@ void printGrid()
 	}
 
 }
+
+void printGridWithCurrent(int row, int col)
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (i == (size_t) row && j == (size_t)col)
+			{
+				cout << "@";
+			}
+			else 
+			{
+				if (GRID[i][j].player == '.')
+				{
+					cout << GRID[i][j].player;
+				}
+				else 
+				{
+					cout << GRID[i][j].groupFreedom;
+				}
+				
+			}
+			
+		}
+		cout << endl;
+	}
+
+}
+
 
 //=================================================
 //
