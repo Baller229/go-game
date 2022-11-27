@@ -74,6 +74,7 @@ struct Brick
 //====================================================
 //
 //====================================================
+void printFreedoms();
 void setFreedomsForCurrentGroup(vector<GroupMember>& groupMembers, int& count);
 bool findMember(vector<GroupMember>& vect, GroupMember& member);
 int checkGroupNeighbours(vector<GroupMember> & member, int row, int col);
@@ -150,6 +151,11 @@ void start()
 	char currentPlayer;
 	for (size_t i = 0; i < INPUT.size(); i+=2) 
 	{
+		if (INPUT[i] == "pass" && INPUT[i + 1] == "pass")
+		{
+			currentPlayer = pickPlayer(playerO);
+			continue;
+		}
 		if (isOutOfField(stoi(INPUT[i]), stoi(INPUT[i + 1])))
 		{
 			continue;
@@ -282,11 +288,19 @@ void makeMove(char player, int row, int col)
 		GRID[row][col].player = player;
 		update(player, row, col);
 		checkGroupFreedom();
+		
+		//HRA DO SAMOVRAZDY -> check if player O or player X is trying to delete himself, replace with '.' update, checkfreedom and continue with same player
+		//HRA DO SAMOVRAZDY -> Ale ak by znamenalo odobratie vlastnych a zaroven superovych kamenov, tah je validny a odoberiu sa superove kamene
+		//KO -> budem odkladat vsetky predosle konfiguracie a porovnavat s aktualnou konfiguraciou
+		//KO -> ak je konfiguracia vypytam tah este raz
 		cout << "========================" << endl;
 		cout << "Player: " << player << " row: " << row << " col: " << col << endl;
 		cout << "========================" << endl;
 		printGrid();
+		cout << endl;
+		printFreedoms();
 		cout << "========================" << endl;
+
 
 		
 	}
@@ -887,5 +901,17 @@ bool colOutOfField(int col)
 //=================================================
 //
 //=================================================
-
+void printFreedoms() 
+{
+	for (size_t i = 0; i < GRID.size(); i++)
+	{
+		for (size_t j = 0; j < GRID[i].size(); j++)
+		{
+			if (GRID[i][j].player == 'X' || GRID[i][j].player == 'O')
+			{
+				cout << "Player: " << GRID[i][j].player << " [" << i << " " << j << "] freedom: " << GRID[i][j].groupFreedom << endl;
+			}
+		}
+	}
+}
 
