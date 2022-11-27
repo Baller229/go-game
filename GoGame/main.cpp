@@ -15,7 +15,7 @@ struct GroupMember {
 	int row;
 	int col;
 };
-//map<int, int> GroupMember;
+////map<int, int> GroupMember;
 
 //===================================
 
@@ -367,6 +367,10 @@ void makeMove(char player, int row, int col, int & countMoves)
 {
 	try
 	{
+		if (countMoves == 249)
+		{
+			//cout << "BBBBBB" << endl;
+		}
 		GRID[row][col].player = player;
 		update(player, row, col);
 		checkGroupFreedom();
@@ -528,7 +532,7 @@ void deleteX()
 				{
 					GRID[i][j].player = '.';
 					update('.', (int)i, (int)j);
-					checkGroupFreedom();
+					
 				}
 			}
 		}
@@ -554,7 +558,6 @@ void deleteO()
 				{
 					GRID[i][j].player = '.';
 					update('.', (int) i, (int) j);
-					checkGroupFreedom();
 				}
 			}
 		}
@@ -616,6 +619,10 @@ void checkGroupFreedom()
 							else
 							{
 								stack.pop();
+								if (!(stack.empty()))
+								{
+									currentMember = stack.top();
+								}
 							}
 						}
 					setFreedomsForCurrentGroup(groupMembersXStack, countFreedoms);
@@ -630,6 +637,10 @@ void checkGroupFreedom()
 				GroupMember currentMemberO;
 				currentMemberO.row = (int)i;
 				currentMemberO.col = (int)j;
+				if (i == 2 && j == 4)
+				{
+					//cout << "bbb" << endl;
+				}
 				if (!(findMember(groupMembersOStack, currentMemberO)))
 				{
 					groupMembersOStack.clear();
@@ -646,6 +657,11 @@ void checkGroupFreedom()
 						else
 						{
 							stackO.pop();
+							if (!(stackO.empty())) 
+							{
+								currentMemberO = stackO.top();
+							}
+							
 						}
 					}
 					setFreedomsForCurrentGroup(groupMembersOStack, countFreedomsO);
@@ -1117,11 +1133,11 @@ void printGridWithCurrent(int row, int col)
 			{
 				//if (GRID[i][j].player == 'X')
 				//{
-				//	cout << "C";;
+					//cout << "C";;
 				//}
 				//if (GRID[i][j].player == 'O')
 				//{
-				//	cout << "B";;
+					//cout << "B";;
 				//}
 				if (GRID[i][j].player == '.')
 				{
